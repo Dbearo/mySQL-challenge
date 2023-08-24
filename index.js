@@ -18,151 +18,225 @@ const mysql = require("mysql");
 // connection.connect(function (err) {
 //     if (err) throw err;
 //     console.log("connected as id " + connection.threadId);
-//     console.log(`
-//     ╔═══╗─────╔╗──────────────╔═╗╔═╗
-//     ║╔══╝─────║║──────────────║║╚╝║║
-//     ║╚══╦╗╔╦══╣║╔══╦╗─╔╦══╦══╗║╔╗╔╗╠══╦═╗╔══╦══╦══╦═╗
-//     ║╔══╣╚╝║╔╗║║║╔╗║║─║║║═╣║═╣║║║║║║╔╗║╔╗╣╔╗║╔╗║║═╣╔╝
-//     ║╚══╣║║║╚╝║╚╣╚╝║╚═╝║║═╣║═╣║║║║║║╔╗║║║║╔╗║╚╝║║═╣║
-//     ╚═══╩╩╩╣╔═╩═╩══╩═╗╔╩══╩══╝╚╝╚╝╚╩╝╚╩╝╚╩╝╚╩═╗╠══╩╝
-//     ───────║║──────╔═╝║─────────────────────╔═╝║
-//     ───────╚╝──────╚══╝─────────────────────╚══╝`)
-//     // runs the app
-  
+
+
 // });
 
 inquirer
-.prompt([
+  .prompt([
+    {
+      type: "list",
+      name: "start",
+      message: "What would you like to do?",
+      choices: [
+        "View Departments",
+        "View All Roles",
+        "View All Employees",
+        "Add Department",
+        "Add Role",
+        "Add Employee",
+        "Update Employee",
+        "End"
+      ]
+    }
+  ])
+  .then(answers => {
+    if (answers.start === "View Departments") {
+
+    } else if (answers.start === "View All Roles") {
+
+    } else if (answers.start === "View All Employees") {
+
+    } else if (answers.start === "Add Department") {
+      askNewDep();
+    } else if (answers.start === "Add Role") {
+      askNewRole();
+    } else if (answers.start === "Add Employee") {
+      askNewEmp();
+    } else if (answers.start === "Update Employee") {
+
+    } else if (answers.start === "End") { }
+  });
+
+
+
+function askNewDep() {
+  inquirer.prompt(addDep).then((data) => {
+    // Here, you can perform actions with the newDep value, if needed.
+
+    if (data.addAnotherD) {
+      askNewDep(); // Ask the next question recursively
+    }
+  });
+}
+function askNewRole() {
+  inquirer.prompt(addRole).then((data) => {
+    // Here, you can perform actions with the newDep value, if needed.
+
+    if (data.addAnotherR) {
+      askNewRole(); // Ask the next question recursively
+    }
+  });
+}
+
+function askNewEmp() {
+  inquirer.prompt(addEmp).then((data) => {
+    // Here, you can perform actions with the newDep value, if needed.
+
+    if (data.addAnotherE) {
+      askNewEmp(); // Ask the next question recursively
+    }
+  });
+}
+
+//inquirer prompts 
+const addDep = [
+  {
+    type: 'input',
+    name: 'newDep',
+    message: 'What is the name of the new Department?'
+  },
+  {
+    type: 'confirm',
+    name: 'addAnotherD',
+    message: 'Do you want to add another department?',
+    default: false
+  }
+];
+
+const addRole = [
+  {
+    type: 'input',
+    name: 'newRole',
+    message: "What is the id of the new role's department?"
+  },
+  {
+    type: 'input',
+    name: 'newRoleS',
+    message: 'What is the hourly wage of the new role?'
+  },
+  {
+    type: 'input',
+    name: 'newRoleD',
+    message: 'What department of the new role?'
+  },
+  {
+    type: 'confirm',
+    name: 'addAnotherR',
+    message: 'Do you want to add another department?',
+    default: false
+  }
+];
+
+const addEmp = [
+  {
+    type: 'input',
+    name: 'newEmpF',
+    message: 'What is the first name of the new Employee?'
+  },
+  {
+    type: 'input',
+    name: 'newEmpL',
+    message: 'What is the last name of the new Employee?'
+  },
+  {
+    type: 'input',
+    name: 'newEmpR',
+    message: 'What is the role id of the new employee?'
+  },
+  {
+    type: 'input',
+    name: 'newEmpM',
+    message: "What is the id of the employee's manager?"
+  },
+  {
+    type: 'confirm',
+    name: 'addAnotherE',
+    message: 'Do you want to add another department?',
+    default: false
+  }
+]
+//Prompts for updating employee
+
+const updateEmp = [
+  {
+    type: 'input',
+    name: 'UpdateEmpQ',
+    message: "What is the id of the employee you want to change?"
+  },
   {
     type: "list",
-    name: "start",
-    message: "What would you like to do?",
+    name: "UpdateChoice",
+    message: "What would you like to update?",
     choices: [
-      "View Departments",
-      "View All Roles",
-      "View All Employees",
-      "Add Department",
-      "Add Role",
-      "Add Employee",
-      "Update Employee",
+      "First Name",
+      "Last Name",
+      "Role ID",
+      "Manager ID",
       "End"
     ]
+  },
+  {
+    type: 'confirm',
+    name: 'addAnotherU',
+    message: 'Do you want to change something else?',
+    default: false
   }
-])
-.then(answers => {
-  if (answers.start === "View Departments") {
-    
-  } else if (answers.start === "View All Roles"){
+];
 
-  } else if (answers.start === "View All Employees"){
+const updateFN = [
+  {
+    type: 'input',
+    name: 'update',
+    message: 'what is the new first name of the employee?'
+  }
+]
 
-  } else if (answers.start === "Add Department") {
-    inquirer
-      .prompt([
-        {
-          type: 'input',
-          name: 'newDep',
-          message: 'What is the name of the new Department?'
-        }
-      ])
-      .then(({ newDep, addAnother }) => {
-        // Here, you can perform actions with the newDep value, if needed.
+const updateLN = [
+  {
+    type: 'input',
+    name: 'update',
+    message: 'what is the new last name of the employee?'
+  }
+]
 
-        if (addAnother) {
-          askNextQuestion(); // Ask the next question recursively
-        } 
-      });
-  } else if (answers.start === "Add Role") {
-    inquirer
-      .prompt([
-        {
-          type: 'input',
-          name: 'newRole',
-          message: "What is the id of the new role's department?"
-        },
-        {
-            type: 'input',
-            name: 'newRoleS',
-            message: 'What is the hourly wage of the new role?'
-          },
-          {
-            type: 'input',
-            name: 'newRoleD',
-            message: 'What department of the new role?'
-          }
-      ])
-      .then(({ newRole, addAnother }) => {
-        // Here, you can perform actions with the newDep value, if needed.
+const updateRID = [
+  {
+    type: 'input',
+    name: 'update',
+    message: 'what is the new role ID name of the employee?'
+  }
+]
 
-        if (addAnother) {
-          askNextQuestion(); // Ask the next question recursively
-        } 
-      });
-  } else if (answers.start === "Add Employee") {
-    inquirer
-      .prompt([
-        {
-          type: 'input',
-          name: 'newEmpF',
-          message: 'What is the first name of the new Employee?'
-        },
-        {
-            type: 'input',
-            name: 'newEmpL',
-            message: 'What is the last name of the new Employee?'
-          },
-          {
-            type: 'input',
-            name: 'newEmpR',
-            message: 'What is the role id of the new employee?'
-          },
-          {
-            type: 'input',
-            name: 'newEmpM',
-            message: "What is the id of the employee's manager?"
-          },
-        {
-          type: 'confirm',
-          name: 'addAnotherE',
-          message: 'Do you want to add another department?',
-          default: false
-        }
-      ])
-      .then((data) => {
-        // Here, you can perform actions with the newDep value, if needed.
+const updateMID = [
+  {
+    type: 'input',
+    name: 'update',
+    message: 'what is the new manager ID name of the employee?'
+  }
+]
+//functions for updating employee
 
-        if (data.addAnotherE) {
-          askNextQuestion(); // Ask the next question recursively
-        } 
-      });
-  } else if (answers.start === "Update Employee") {
-    inquirer
-      .prompt([
-        {
-            type: "list",
-            name: "UpdateChoice",
-            message: "What would you like to update?",
-            choices: [
-              "First Name",
-              "Last Name",
-              "Role ID",
-              "Manager ID",
-              "End"
-            ]
-          },
-        {
-          type: 'confirm',
-          name: 'addAnotherU',
-          message: 'Do you want to add another department?',
-          default: false
-        }
-      ])
-      .then(({ newEmp, addAnotherU }) => {
-        // Here, you can perform actions with the newDep value, if needed.
+function updateEmpf() {
+  inquirer.prompt(updateEmp).then((data) => {
+    // Here, you can perform actions with the newDep value, if needed.
+    if(data.UpdateChoice === 'First Name'){
+      updateFinal(updateFN);
+    } else     if(data.UpdateChoice === 'Last Name'){
+      updateFinal(updateLN);
+    } else     if(data.UpdateChoice === 'Role ID'){
+      updateFinal(updateRID);
+    } else    if(data.UpdateChoice === 'Manager ID'){
+      updateFinal(updateFN);
+    } else
+    if (data.addAnotherU) {
+      askNextQuestion(); // Ask the next question recursively
+    }
+  });
+}
 
-        if (addAnotherU) {
-          askNextQuestion(); // Ask the next question recursively
-        } 
-      });
-  } else if (answers.start === "End") {}
-});
+function updateFinal(question){
+  inquirer.prompt(question).then((data) => {
+    console.log(data.update)
+  });
+}
