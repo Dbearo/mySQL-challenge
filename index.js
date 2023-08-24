@@ -1,27 +1,17 @@
 const inquirer = require("inquirer");
-const mysql = require("mysql");
+const mysql = require("mysql2");
 
-// const connection = mysql.createConnection({
-//     host: 'localhost',
+const pool = mysql.createPool({
+    host: 'localhost',
 
-//     // Your port; if not 3306
-//     port: 3306,
+    // Your username
+    user: 'root',
 
-//     // Your username
-//     user: 'root',
-
-//     // Your password
-//     password: 'r00t',
-//     database: 'employeesDB'
-// });
-
-// connection.connect(function (err) {
-//     if (err) throw err;
-//     console.log("connected as id " + connection.threadId);
-
-
-// });
-
+    // Your password
+    password: 'r00t',
+    database: 'employeesDB'
+}).promise()
+function mainMenu(){
 inquirer
   .prompt([
     {
@@ -40,13 +30,19 @@ inquirer
       ]
     }
   ])
-  .then(answers => {
+  .then(async answers => {
     if (answers.start === "View Departments") {
-
+      const [rows,fields] = await pool.query('SELECT * FROM department');
+      console.log(rows)
+      mainMenu();
     } else if (answers.start === "View All Roles") {
-
+      const [rows,fields] = await pool.query('SELECT * FROM roles');
+      console.log(rows)
+      mainMenu();
     } else if (answers.start === "View All Employees") {
-
+      const [rows,fields] = await pool.query('SELECT * FROM employee');
+      console.log(rows)
+      mainMenu();
     } else if (answers.start === "Add Department") {
       askNewDep();
     } else if (answers.start === "Add Role") {
@@ -54,11 +50,15 @@ inquirer
     } else if (answers.start === "Add Employee") {
       askNewEmp();
     } else if (answers.start === "Update Employee") {
-
-    } else if (answers.start === "End") { }
+      updateEmpf();
+    } else if (answers.start === "End") { 
+      process.exit(); 
+    }
   });
-
-
+}
+pool.query(`INSERT INTO employee (first_name, last_name, role_id, manager_id)
+VALUES ("Jude", "Hartmann", 4, 4);`);
+mainMenu();
 
 function askNewDep() {
   inquirer.prompt(addDep).then((data) => {
@@ -66,7 +66,7 @@ function askNewDep() {
 
     if (data.addAnotherD) {
       askNewDep(); // Ask the next question recursively
-    }
+    } else {mainMenu();}
   });
 }
 function askNewRole() {
@@ -75,7 +75,7 @@ function askNewRole() {
 
     if (data.addAnotherR) {
       askNewRole(); // Ask the next question recursively
-    }
+    } else{mainMenu();}
   });
 }
 
@@ -85,7 +85,7 @@ function askNewEmp() {
 
     if (data.addAnotherE) {
       askNewEmp(); // Ask the next question recursively
-    }
+    } else {mainMenu();}
   });
 }
 
@@ -152,7 +152,7 @@ const addEmp = [
   {
     type: 'confirm',
     name: 'addAnotherE',
-    message: 'Do you want to add another department?',
+    message: 'Do you want to add another employee?',
     default: false
   }
 ]
@@ -175,12 +175,6 @@ const updateEmp = [
       "Manager ID",
       "End"
     ]
-  },
-  {
-    type: 'confirm',
-    name: 'addAnotherU',
-    message: 'Do you want to change something else?',
-    default: false
   }
 ];
 
@@ -220,22 +214,22 @@ const updateMID = [
 function updateEmpf() {
   inquirer.prompt(updateEmp).then((data) => {
     // Here, you can perform actions with the newDep value, if needed.
-    if(data.UpdateChoice === 'First Name'){
+    if (data.UpdateChoice === 'First Name') {
       updateFinal(updateFN);
-    } else     if(data.UpdateChoice === 'Last Name'){
+    } else if (data.UpdateChoice === 'Last Name') {
       updateFinal(updateLN);
-    } else     if(data.UpdateChoice === 'Role ID'){
+    } else if (data.UpdateChoice === 'Role ID') {
       updateFinal(updateRID);
-    } else    if(data.UpdateChoice === 'Manager ID'){
-      updateFinal(updateFN);
-    } else
-    if (data.addAnotherU) {
-      askNextQuestion(); // Ask the next question recursively
-    }
+    } else if (data.UpdateChoice === 'Manager ID') {
+      updateFinal(updateMID);
+    } 
+      if (data.addAnotherU) {
+        askNextQuestion(); // Ask the next question recursively
+      } else{mainMenu();}
   });
 }
 
-function updateFinal(question){
+function updateFinal(question) {
   inquirer.prompt(question).then((data) => {
     console.log(data.update)
   });

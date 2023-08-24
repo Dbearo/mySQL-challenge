@@ -9,15 +9,15 @@ VALUES ("Deli");
 INSERT INTO department (name)
 VALUES ("Bakery");
 -- setting up example roles
-INSERT INTO role (title, salary, department_id)
+INSERT INTO roles (title, salary, department_id)
 VALUES ("Floor Manager", 100000, 1);
-INSERT INTO role (title, salary, department_id)
+INSERT INTO roles (title, salary, department_id)
 VALUES (" Manager", 150000, 2);
-INSERT INTO role (title, salary, department_id)
+INSERT INTO roles (title, salary, department_id)
 VALUES ("Floor Manager", 120000, 2);
-INSERT INTO role (title, salary, department_id)
+INSERT INTO roles (title, salary, department_id)
 VALUES ("Floor Manager", 125000, 3);
-INSERT INTO role (title, salary, department_id)
+INSERT INTO roles (title, salary, department_id)
 VALUES ("Floor Manager", 250000, 4);
 -- setting up example employees
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
