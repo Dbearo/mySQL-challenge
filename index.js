@@ -36,11 +36,20 @@ inquirer
       console.log(rows)
       mainMenu();
     } else if (answers.start === "View All Roles") {
-      const [rows,fields] = await pool.query('SELECT * FROM roles');
+      const [rows,fields] = await pool.query('select title, roles_id, name, salary from roles inner join department on roles.department_id = department.department; ');
       console.log(rows)
       mainMenu();
     } else if (answers.start === "View All Employees") {
-      const [rows,fields] = await pool.query('SELECT * FROM employee');
+      const [rows,fields] = await pool.query(`SELECT e.employee_id , e.first_name , e.last_name , r.title , 
+      d.name as departmaent , r.salary , m.first_name AS manager_first_name , m.last_name AS manager_last_name
+  FROM 
+      employee e
+  LEFT JOIN 
+      roles r ON e.role_id = r.roles_id
+  LEFT JOIN 
+      department d ON r.department_id = d.department
+  LEFT JOIN 
+      employee m ON e.manager_id = m.employee_id;`);
       console.log(rows)
       mainMenu();
     } else if (answers.start === "Add Department") {
@@ -56,38 +65,85 @@ inquirer
     }
   });
 }
-pool.query(`INSERT INTO employee (first_name, last_name, role_id, manager_id)
-VALUES ("Jude", "Hartmann", 4, 4);`);
+
 mainMenu();
 
 function askNewDep() {
   inquirer.prompt(addDep).then((data) => {
-    // Here, you can perform actions with the newDep value, if needed.
-
+    pool.query(`INSERT INTO department (name)
+    VALUES ("${data.newDep}");`);
     if (data.addAnotherD) {
-      askNewDep(); // Ask the next question recursively
+      askNewDep();
     } else {mainMenu();}
   });
 }
 function askNewRole() {
   inquirer.prompt(addRole).then((data) => {
-    // Here, you can perform actions with the newDep value, if needed.
-
+    let salary = parseInt(data.newRoleS)
+    let department = parseInt(data.newRoleD)
+    pool.query(`INSERT INTO roles (title, salary, department_id)
+    VALUES ("${data.newRole}", ${salary}, ${department});`);
     if (data.addAnotherR) {
-      askNewRole(); // Ask the next question recursively
+      askNewRole();
     } else{mainMenu();}
   });
 }
 
 function askNewEmp() {
   inquirer.prompt(addEmp).then((data) => {
-    // Here, you can perform actions with the newDep value, if needed.
-
+    let role = parseInt(data.newEmpR)
+    let manager = parseInt(data.newEmpM)
+    pool.query(`INSERT INTO employee (first_name, last_name, role_id, manager_id)
+    VALUES ("${data.newEmpF}", "${data.newEmpL}", ${role}, ${manager});`);
     if (data.addAnotherE) {
-      askNewEmp(); // Ask the next question recursively
+      askNewEmp(); 
     } else {mainMenu();}
   });
 }
+
+//functions for updating employee
+
+function updateEmpf() {
+  inquirer.prompt(updateEmp).then((data) => {
+    let eID = parseInt(data.UpdateEmpID)
+    if (data.UpdateChoice === 'First Name') {
+      let goal = 'first_name'
+      updateFinal(updateFN,goal,eID);
+    } else if (data.UpdateChoice === 'Last Name') {
+      let goal = 'last_name'
+      updateFinal(updateLN,goal,eID);
+    } else if (data.UpdateChoice === 'Role ID') {
+      let goal = 'role_id'
+      updateFinal(updateRID,goal,eID);
+    } else if (data.UpdateChoice === 'Manager ID') {
+      let goal = 'manager_id'
+      updateFinal(updateMID,goal,eID);
+    } 
+      if (data.UpdateChoice === 'End') {
+       mainMenu(); 
+      } 
+  });
+}
+
+async function updateFinal(question, goal, eID) {
+  try {
+    const data = await inquirer.prompt(question);
+    await pool.query(`UPDATE employee
+      SET ${goal} = ?
+      WHERE id = ?`, [data.update, eID]);
+
+    console.log("Employee updated successfully!");
+  } catch (error) {
+    console.error("Error updating employee:", error);
+  }
+
+  mainMenu();
+}
+
+
+
+
+
 
 //inquirer prompts 
 const addDep = [
@@ -108,7 +164,7 @@ const addRole = [
   {
     type: 'input',
     name: 'newRole',
-    message: "What is the id of the new role's department?"
+    message: "What is the name of the new role?"
   },
   {
     type: 'input',
@@ -118,7 +174,7 @@ const addRole = [
   {
     type: 'input',
     name: 'newRoleD',
-    message: 'What department of the new role?'
+    message: `What is the id of the new role's department?`
   },
   {
     type: 'confirm',
@@ -161,7 +217,7 @@ const addEmp = [
 const updateEmp = [
   {
     type: 'input',
-    name: 'UpdateEmpQ',
+    name: 'UpdateEmpID',
     message: "What is the id of the employee you want to change?"
   },
   {
@@ -209,28 +265,3 @@ const updateMID = [
     message: 'what is the new manager ID name of the employee?'
   }
 ]
-//functions for updating employee
-
-function updateEmpf() {
-  inquirer.prompt(updateEmp).then((data) => {
-    // Here, you can perform actions with the newDep value, if needed.
-    if (data.UpdateChoice === 'First Name') {
-      updateFinal(updateFN);
-    } else if (data.UpdateChoice === 'Last Name') {
-      updateFinal(updateLN);
-    } else if (data.UpdateChoice === 'Role ID') {
-      updateFinal(updateRID);
-    } else if (data.UpdateChoice === 'Manager ID') {
-      updateFinal(updateMID);
-    } 
-      if (data.addAnotherU) {
-        askNextQuestion(); // Ask the next question recursively
-      } else{mainMenu();}
-  });
-}
-
-function updateFinal(question) {
-  inquirer.prompt(question).then((data) => {
-    console.log(data.update)
-  });
-}
